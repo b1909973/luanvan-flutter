@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "131759964540",
+    "project_id": "ct550-project",
+    "storage_bucket": "ct550-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:131759964540:android:71dd983ad79fad4dd3e4f9",
+        "android_client_info": {
+          "package_name": "com.example.social_video"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "131759964540-a51st8jd67lgevhd60d8a55clgdnj1su.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGGC6_prD-ELevdEOyrxsQOLIGVBFbOm8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "131759964540-a51st8jd67lgevhd60d8a55clgdnj1su.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
