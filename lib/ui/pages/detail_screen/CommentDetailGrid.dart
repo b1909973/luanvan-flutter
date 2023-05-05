@@ -12,15 +12,15 @@ import 'package:provider/provider.dart';
 import 'package:social_video/ui/pages/video_manager.dart';
 import 'package:provider/provider.dart';
 
-class CommentGird extends StatefulWidget{
+class CommentDetailGird extends StatefulWidget{
       final String videoId;
-    CommentGird({Key? key,required this.videoId});
+    CommentDetailGird({Key? key,required this.videoId});
 
   @override
-  State<CommentGird> createState() => _CommentGirdState();
+  State<CommentDetailGird> createState() => _CommentDetailGirdState();
 }
 
-class _CommentGirdState extends State<CommentGird> {
+class _CommentDetailGirdState extends State<CommentDetailGird> {
          TextEditingController content = TextEditingController(text:'');
 
   Widget build(BuildContext context){
@@ -131,7 +131,7 @@ Widget CustomCircleAvatar(double size,String? avatar){
                     
                     if(id!=''){
                       print('1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-                    await   context.read<VideosManager>().updateComment(videoId,id,content.text);
+                    await   context.read<VideosManager>().updateUserComment(videoId,id,content.text);
                     await context.read<VideosManager>().fetchComments(videoId);
                     content.text='';
                     setState(() {

@@ -32,11 +32,11 @@ var _videoPlayerController;
  final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
   final String _bucketUrl = 'gs://ct550-project.appspot.com';
 
-  Future<void> uploadVideo(File file,String id,String title, String tag) async {
+  Future<void> uploadVideo(File file,String id,String title, String tag,String name) async {
     try {
       // Lấy định danh tệp tin trên Firebase Storage
       String fileName = basename(file.path);
-      String firebasePath = 'videos/${tag}/${id}/$fileName';
+      String firebasePath = 'videos/${tag}/${name}/$fileName';
       Reference reference = _firebaseStorage.ref().child(firebasePath);
 
       // Tải tệp tin lên Firebase Storage
@@ -53,7 +53,7 @@ var _videoPlayerController;
   }
 
 
-Future<int> postVideo(String? id) async{
+Future<int> postVideo(String? id ,String name) async{
  
 
   // THONG TIN
@@ -68,7 +68,7 @@ Future<int> postVideo(String? id) async{
     }
   
       if(tmp!=null){
-      uploadVideo(tmp!,id!,title,dropdownValue);
+      uploadVideo(tmp!,id!,title,dropdownValue,name);
 
       }
     return 1;
@@ -125,7 +125,7 @@ Future<int> postVideo(String? id) async{
   }
 
     Widget build(BuildContext context){
-
+      print('buildddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd');
       return Scaffold(
         appBar: AppBar(
           title: Text('Đăng bài viết'),
@@ -227,7 +227,7 @@ Future<int> postVideo(String? id) async{
                 
                 ElevatedButton(onPressed: () async {
                         print('dang');
-                    int isSuccess=  await    postVideo(context.read<AuthManager>().authToken?.token);
+                    int isSuccess=  await    postVideo(context.read<AuthManager>().authToken?.token,context.read<AuthManager>().authToken!.user.name);
                     if(isSuccess==0){
                         ScaffoldMessenger.of(context).showSnackBar(
                    SnackBar(content: Text('Falled'),duration: Duration(seconds: 2),),
@@ -253,18 +253,23 @@ Future<int> postVideo(String? id) async{
     }
 
   Widget VideoFrame(){
+    print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+
+      print(image);
+    print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+
    if(image!=null){
 
   _videoPlayerController=  VideoPlayerController.file(tmp!);
   // _videoPlayerController.play();
-          // _videoPlayerController.setLooping(true);
+  //         _videoPlayerController.setLooping(true);
   _initializeVideoPlayerFuture= _videoPlayerController.initialize();
 
 
    }
       return       Container(
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.9),
+                        color: Colors.amber,
                         borderRadius: BorderRadius.all(Radius.circular(12))
                       )
                       ,

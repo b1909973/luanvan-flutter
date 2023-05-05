@@ -12,22 +12,22 @@ import 'package:provider/provider.dart';
 import 'package:social_video/ui/pages/video_manager.dart';
 import 'package:provider/provider.dart';
 
-class CommentGird extends StatefulWidget{
+class CommentSearchGird extends StatefulWidget{
       final String videoId;
-    CommentGird({Key? key,required this.videoId});
+    CommentSearchGird({Key? key,required this.videoId});
 
   @override
-  State<CommentGird> createState() => _CommentGirdState();
+  State<CommentSearchGird> createState() => _CommentSearchGirdState();
 }
 
-class _CommentGirdState extends State<CommentGird> {
+class _CommentSearchGirdState extends State<CommentSearchGird> {
          TextEditingController content = TextEditingController(text:'');
 
   Widget build(BuildContext context){
    print('build-------------------------------------------------------------------------------------------------------');
  
-      return Consumer<VideosManager> (
-          builder: (context, videosManager, child) {
+      return Consumer<SearchManager> (
+          builder: (context, searchManager, child) {
            return  GestureDetector(
                 child:  Icon(FontAwesomeIcons.comment,color: Colors.white,),
                 onTap: () {
@@ -46,10 +46,10 @@ class _CommentGirdState extends State<CommentGird> {
               CommentInput(widget.videoId,context.read<AuthManager>().isAuth ? context.read<AuthManager>().authToken!.token : '' ,context,context.read<AuthManager>().isAuth ?  context.read<AuthManager>().authToken!.user : null),
               
                 Expanded(child: ListView.builder(
-                              itemCount: videosManager.comment.length,
+                              itemCount: searchManager.comment.length,
                               itemBuilder: (context, index) {
-                                print(videosManager.comment);
-                              return CommentItem(videosManager.comment[index]);
+                                print(searchManager.comment);
+                              return CommentItem(searchManager.comment[index]);
                             },),
 
                 
@@ -131,9 +131,8 @@ Widget CustomCircleAvatar(double size,String? avatar){
                     
                     if(id!=''){
                       print('1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-                    await   context.read<VideosManager>().updateComment(videoId,id,content.text);
-                    await context.read<VideosManager>().fetchComments(videoId);
-                    content.text='';
+                    await   context.read<SearchManager>().updateComment(videoId,id,content.text);
+                    await context.read<SearchManager>().fetchComments(videoId);
                     setState(() {
                       
                     });
@@ -212,63 +211,7 @@ String convertToAgo(DateTime input){
   } else {
     return 'just now';
   }}
-   void _showCommentModal(BuildContext context) {
-  showModalBottomSheet(
-
-    context: context,
-    builder: (BuildContext context) {
-      return SingleChildScrollView(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Container(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Comments',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 16.0),
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: 1,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    title: Text('aaaaaa'),
-                  );
-                },
-              ),
-              SizedBox(height: 16.0),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: 'Add a comment',
-                ),
-                onSubmitted: (String comment) {
-                //   setState(() {
-                //     comments.add(comment);
-                //   });
-                //   Navigator.pop(context);
-                },
-              ),
-              SizedBox(height: 16.0),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text('Cancel'),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  );
-}
+   
 
 }
 

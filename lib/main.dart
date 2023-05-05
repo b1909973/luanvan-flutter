@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:social_video/services/auth.dart';
 import 'package:social_video/ui/home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:social_video/ui/pages/chat__screen/chat_manager.dart';
-import 'package:social_video/ui/pages/detail_screen/detail_screen.dart';
 import 'package:social_video/ui/pages/detail_screen/video_grids_detail.dart';
 import 'package:social_video/ui/pages/discover_screen/search_manager.dart';
 import 'package:social_video/ui/pages/feed_screen/feed_screen.dart';
@@ -18,17 +18,30 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
   options: DefaultFirebaseOptions.currentPlatform,
 );
+ WidgetsFlutterBinding.ensureInitialized();
+    AuthManager a = AuthManager();
+
+  final prefs = await SharedPreferences.getInstance();
+       final token = prefs.getString('token');
+       if(token!=null){
+        a.authToken =  await AuthService().login(token);
+       }
+
    
-  runApp(MyApp());
+   
+   
+  runApp(MyApp(a: a));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+   AuthManager a ;
+   MyApp({super.key,required this.a});
 
   // This widget is the root of your application.
   @override
@@ -44,7 +57,7 @@ class MyApp extends StatelessWidget {
             ),
           
           ChangeNotifierProvider(
-            create: (ctx) => AuthManager(),
+            create: (ctx) => a,
           ),
            ChangeNotifierProvider(
             create: (ctx) =>SearchManager()

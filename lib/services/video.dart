@@ -28,7 +28,20 @@ class VideosService{
 //           return a;
 //    }
 
+Future<bool> updateAvatar(String url,String id)async{
 
+ try {
+    DocumentReference user = FirebaseFirestore.instance.collection('users').doc(id);
+    print(user.id);
+    await  user.update({
+        'photoURL':url
+      }).then((value) => print('SUCESS')).catchError((err)=>print('ERROR -----------------------'));
+    return true;
+ } catch (e) {
+   return false;
+ }
+    
+}
 Future<void> updateLike(String id,String token,List<dynamic> like) async{
  
   DocumentReference videos = FirebaseFirestore.instance.collection('videos').doc(id);
@@ -86,7 +99,7 @@ Future<bool> updateComment(String id,String token,String content,int sl) async{
 try {
   CollectionReference videos = FirebaseFirestore.instance.collection('videos');
           print(videos);
-   await videos.get().then((QuerySnapshot querySnapshot) {
+   await videos.limit(pagination).get().then((QuerySnapshot querySnapshot) {
 
        querySnapshot.docs.forEach((doc) {
   
@@ -104,9 +117,10 @@ try {
           like: doc['likes'] ,
           comment:doc['comments']
           ,
-
+          views: doc['views']
+          ,
           isLike:false ,
-          dateTime: '1')
+          dateTime: doc['timestamp'])
     );
         });
     });
@@ -118,6 +132,89 @@ for (var i = 0; i < _item.length; i++) {
     // print('email -------- ${querySnapshot.docs[0]['email'] }');/
     print('email ------------ ${querySnapshot.docs[0].data().toString().contains("email")}');
          _item[i].user = Users(
+          favorites: querySnapshot.docs[0].data().toString().contains('favorites') ? querySnapshot.docs[0].get('favorites') :   []
+,
+          name:querySnapshot.docs[0].data().toString().contains('name') ?querySnapshot.docs[0]['name'] : '',
+         email:querySnapshot.docs[0].data().toString().contains('email') ? querySnapshot.docs[0].get('email') :  '', 
+         nickname:querySnapshot.docs[0].data().toString().contains('nickname') ? querySnapshot.docs[0]['nickname'] : '',
+          like: querySnapshot.docs[0].data().toString().contains('likes') ? querySnapshot.docs[0].get('likes') :  [] ,
+           Follower: querySnapshot.docs[0].data().toString().contains('followers') ? querySnapshot.docs[0].get('followers') :   [],
+         Following:querySnapshot.docs[0].data().toString().contains('following') ? querySnapshot.docs[0].get('following') :   [],
+         PhotoURL: querySnapshot.docs[0].data().toString().contains('photoURL') ?querySnapshot.docs[0]['photoURL'] : '',
+         id: querySnapshot.docs[0]['uid']  ,
+          tick:  querySnapshot.docs[0]['tick'] );
+
+        // _item[i].user = Users(name: querySnapshot.docs[0]['name'], email:querySnapshot.docs[0]['email'] , nickname: querySnapshot.docs[0]['nickname'], like: querySnapshot.docs[0]['likes'] , Follower: querySnapshot.docs[0]['followers'], Following: querySnapshot.docs[0]['following'],PhotoURL: querySnapshot.docs[0]['photoURL'],id: querySnapshot.docs[0]['uid'], tick:  querySnapshot.docs[0]['tick']);
+    print('-----------------------------44444444444444444');
+    print(querySnapshot);
+    print('-----------------------------44444444444444');
+    
+    
+    });
+  
+}
+    print('-----------------------------------------------------------------------------------------------------------');
+
+  //  _item.forEach((item)=> { 
+
+  
+
+  //   });
+
+
+print(_item);
+return _item;
+
+// return productsMap;
+}catch (error) {
+print('hahahahah $error');
+
+return _item;
+}
+}
+
+ Future<List<Video>> fetchProductsFollowing(int pagination,List<dynamic> following) async {
+ final List<Video> _item = [];
+ 
+try {
+  CollectionReference videos = FirebaseFirestore.instance.collection('videos');
+          print(videos);
+   await videos.where('uid',whereIn: following).limit(pagination).get().then((QuerySnapshot querySnapshot) {
+
+       querySnapshot.docs.forEach((doc) {
+  
+     
+        
+        _item.add(
+        Video(
+          id:doc['vid'].toString(),
+        title: doc['desc'],
+         videoLink: doc['url'],
+
+          userid:doc['uid'],
+
+         
+          like: doc['likes'] ,
+          comment:doc['comments']
+          ,
+          views: doc['views']
+        
+        ,
+          isLike:false ,
+           dateTime: doc['timestamp'])
+    );
+        });
+    });
+
+    print('-----------------------------------------------------------------------------------------------------------');
+  
+for (var i = 0; i < _item.length; i++) {
+ await FirebaseFirestore.instance.collection('users').where('uid',isEqualTo: _item[i].userid).get().then((QuerySnapshot querySnapshot){
+    // print('email -------- ${querySnapshot.docs[0]['email'] }');/
+    print('email ------------ ${querySnapshot.docs[0].data().toString().contains("email")}');
+         _item[i].user = Users(
+          favorites: querySnapshot.docs[0].data().toString().contains('favorites') ? querySnapshot.docs[0].get('favorites') :   []
+,
           name:querySnapshot.docs[0].data().toString().contains('name') ?querySnapshot.docs[0]['name'] : '',
          email:querySnapshot.docs[0].data().toString().contains('email') ? querySnapshot.docs[0].get('email') :  '', 
          nickname:querySnapshot.docs[0].data().toString().contains('nickname') ? querySnapshot.docs[0]['nickname'] : '',
@@ -179,14 +276,15 @@ try {
          videoLink: doc['url'],
 
           userid:doc['uid'],
+          views: doc['views']
 
-         
+          ,   
           like: doc['likes'] ,
           comment:doc['comments']
           ,
 
           isLike:false,
-          dateTime: '1')
+           dateTime: doc['timestamp'])
     );
         });
     });
@@ -204,7 +302,10 @@ for (var i = 0; i < _item.length; i++) {
          Following:querySnapshot.docs[0].data().toString().contains('following') ? querySnapshot.docs[0].get('following') :   [],
          PhotoURL: querySnapshot.docs[0].data().toString().contains('photoURL') ?querySnapshot.docs[0]['photoURL'] : '',
          id: querySnapshot.docs[0]['uid']  ,
-          tick:  querySnapshot.docs[0]['tick'] );
+          tick:  querySnapshot.docs[0]['tick'] ,
+          favorites: querySnapshot.docs[0].data().toString().contains('favorites') ? querySnapshot.docs[0].get('favorites') :   []
+          
+          );
 
     print('-----------------------------3333');
     print(querySnapshot);
@@ -236,13 +337,13 @@ return _item;
 
 
 
- Future<List<Video>> fetchProductsSearch(String search) async {
+ Future<List<Video>> fetchProductsSearch(String search, int pagination) async {
  final List<Video> _item = [];
  
 try {
   CollectionReference videos = FirebaseFirestore.instance.collection('videos');
           print('------------------------------${videos}');
-   await videos.get().then((QuerySnapshot querySnapshot) {
+   await videos.limit(pagination).get().then((QuerySnapshot querySnapshot) {
 
        querySnapshot.docs.forEach((doc) {
   
@@ -260,9 +361,13 @@ try {
           like: doc['likes'] ,
           comment:doc['comments']
           ,
+          views: doc['views']
+
+
+          ,
 
           isLike:false,
-          dateTime: '1')
+          dateTime: doc['timestamp'])
     );
         });
     });
@@ -282,6 +387,8 @@ for (var i = 0; i < _item.length; i++) {
          Following:querySnapshot.docs[0].data().toString().contains('following') ? querySnapshot.docs[0].get('following') :   [],
          PhotoURL: querySnapshot.docs[0].data().toString().contains('photoURL') ?querySnapshot.docs[0]['photoURL'] : '',
          id: querySnapshot.docs[0]['uid']  ,
+          favorites: querySnapshot.docs[0].data().toString().contains('favorites') ? querySnapshot.docs[0].get('favorites') :   []
+,
           tick:  querySnapshot.docs[0]['tick'] );
 
         // _item[i].user = Users(name: querySnapshot.docs[0]['name'], email:querySnapshot.docs[0]['email'] , nickname: querySnapshot.docs[0]['nickname'], like: querySnapshot.docs[0]['likes'] , Follower: querySnapshot.docs[0]['followers'], Following: querySnapshot.docs[0]['following'],PhotoURL: querySnapshot.docs[0]['photoURL'],id: querySnapshot.docs[0]['uid'], tick:  querySnapshot.docs[0]['tick']);
@@ -364,7 +471,7 @@ try {
           id:element['cid'],
           userid:element['uid'],
           content:  element['text'],
-          dateTime: element['timestamp'].toString(),
+          dateTime: element['timestamp'],
           likes: element['likes'],
           videoid:element['vid'],
           children: element['childrens']
@@ -375,6 +482,36 @@ try {
   //   print(_item);
 });
    });
+
+
+for (var i = 0; i < _item.length; i++) {
+ await FirebaseFirestore.instance.collection('users').where('uid',isEqualTo: _item[i].userid).get().then((QuerySnapshot querySnapshot){
+    // print('email -------- ${querySnapshot.docs[0]['email'] }');/
+    print('email ------------ ${querySnapshot.docs[0].data().toString().contains("email")}');
+         _item[i].user = Users(
+          name:querySnapshot.docs[0].data().toString().contains('name') ?querySnapshot.docs[0]['name'] : '',
+         email:querySnapshot.docs[0].data().toString().contains('email') ? querySnapshot.docs[0].get('email') :  '', 
+         nickname:querySnapshot.docs[0].data().toString().contains('nickname') ? querySnapshot.docs[0]['nickname'] : '',
+          like: querySnapshot.docs[0].data().toString().contains('likes') ? querySnapshot.docs[0].get('likes') :  [] ,
+           Follower: querySnapshot.docs[0].data().toString().contains('followers') ? querySnapshot.docs[0].get('followers') :   [],
+         Following:querySnapshot.docs[0].data().toString().contains('following') ? querySnapshot.docs[0].get('following') :   [],
+         PhotoURL: querySnapshot.docs[0].data().toString().contains('photoURL') ?querySnapshot.docs[0]['photoURL'] : '',
+         id: querySnapshot.docs[0]['uid']  ,
+          favorites: querySnapshot.docs[0].data().toString().contains('favorites') ? querySnapshot.docs[0].get('favorites') :   []
+,
+          tick:  querySnapshot.docs[0]['tick'] );
+
+        // _item[i].user = Users(name: querySnapshot.docs[0]['name'], email:querySnapshot.docs[0]['email'] , nickname: querySnapshot.docs[0]['nickname'], like: querySnapshot.docs[0]['likes'] , Follower: querySnapshot.docs[0]['followers'], Following: querySnapshot.docs[0]['following'],PhotoURL: querySnapshot.docs[0]['photoURL'],id: querySnapshot.docs[0]['uid'], tick:  querySnapshot.docs[0]['tick']);
+    print('-----------------------------44444444444444444');
+    print(querySnapshot);
+    print('-----------------------------44444444444444');
+    
+    
+    });
+  
+}
+
+
 // final videosUrl = Uri.parse('http://localhost:3000/video/comment/${videoId}');
   
 // final response = await http.get(videosUrl);

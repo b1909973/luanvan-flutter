@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:social_video/models/user.dart';
 
 import '../models/auth.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService{
 
@@ -36,6 +36,9 @@ class AuthService{
   Future<AuthToken>  login(String uid) async {
 
  try {
+       final prefs = await SharedPreferences.getInstance();
+     await prefs.setString('token', uid);
+
            CollectionReference users = FirebaseFirestore.instance.collection('users');
 
  AuthToken a =  await users.where('uid',isEqualTo: uid).get().then((QuerySnapshot querySnapshot) {
@@ -51,6 +54,7 @@ class AuthService{
           tick:  querySnapshot.docs[0]['tick'],
           favorites: querySnapshot.docs[0].data().toString().contains('favorites') ? querySnapshot.docs[0].get('favorites') :   []
            );
+       
       return AuthToken(token: uid, user: u);
 
 

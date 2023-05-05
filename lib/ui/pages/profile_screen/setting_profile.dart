@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:social_video/models/auth.dart';
 import 'package:social_video/services/user.dart';
+import 'package:social_video/services/video.dart';
 import 'package:social_video/ui/pages/login/auth_manager.dart';
 import 'dart:io'; 
 
@@ -43,12 +44,12 @@ List<String> options = [
  final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
   final String _bucketUrl = 'gs://ct550-project.appspot.com';
 
-Future<void> uploadAvatar(File file,String id) async {
+Future<bool> uploadAvatar(File file,String id,String name,BuildContext context)async {
 
     try {
       // Lấy định danh tệp tin trên Firebase Storage
-      String fileName = basename(file.path);
-      String firebasePath = 'images/avatar/${id}/$fileName';
+      String fileName = basename(file.path);  
+      String firebasePath = 'images/avatar/${name}/$fileName';
       Reference reference = _firebaseStorage.ref().child(firebasePath);
 
       // Tải tệp tin lên Firebase Storage
@@ -57,14 +58,18 @@ Future<void> uploadAvatar(File file,String id) async {
       String downloadUrl = await snapshot.ref.getDownloadURL();
 
       print('File $fileName has been uploaded. Url: $downloadUrl');
+VideosService videosService =VideosService();
 
-      // videosService.postVideo(title,downloadUrl,id); here -----------------------------
+    bool a=  await videosService.updateAvatar(downloadUrl,id); 
+     context.read<AuthManager>().authToken!.user.PhotoURL=downloadUrl;
+         return a;
     } on FirebaseException catch (e) {
       print('Error uploading file: $e');
+      return false;
     }
   }
 
-  Future<void> postAvatar(String? id) async{
+  Future<bool> postAvatar(String? id,String name,BuildContext context) async{
  
 
   // THONG TIN
@@ -72,7 +77,7 @@ Future<void> uploadAvatar(File file,String id) async {
    
   
     
-      uploadAvatar(tmp!,id!);
+      return await uploadAvatar(tmp!,id!,name,context);
 
       }
    
@@ -103,7 +108,14 @@ Future<void> uploadAvatar(File file,String id) async {
                 print(image);
                 tmp =File(i!.path);
                
-               postAvatar(context.read<AuthManager>().authToken?.token);
+              bool a= await postAvatar(context.read<AuthManager>().authToken?.token,context.read<AuthManager>().authToken!.user.name,context);
+                if(a){
+                    
+                                   ScaffoldMessenger.of(context).showSnackBar(
+                               SnackBar(content: Text('Cập nhật thành công'),duration: Duration(seconds: 2),),
+                                   );
+
+                }
                 setState(() {
                   
                 });
@@ -119,8 +131,15 @@ Future<void> uploadAvatar(File file,String id) async {
                 image=i!.path;
                 print('11111111111111111111111111111111111111111111111111111111111111');
                 print(image);
-               postAvatar(context.read<AuthManager>().authToken?.token);
+            bool a= await     postAvatar(context.read<AuthManager>().authToken?.token,context.read<AuthManager>().authToken!.user.name,context);
 
+                if(a){
+                    
+                                   ScaffoldMessenger.of(context).showSnackBar(
+                               SnackBar(content: Text('Cập nhật thành công'),duration: Duration(seconds: 2),),
+                                   );
+
+                }
                 setState(() {
                   
                 });

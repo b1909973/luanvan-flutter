@@ -25,7 +25,8 @@ class _ChatScreen1State extends State<ChatScreen1> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Zalo'),
+        title: Text('Chat'),
+        backgroundColor: Colors.red,
         actions: [
           IconButton(
             icon: Icon(Icons.info),
@@ -61,6 +62,20 @@ class _ChatScreen1State extends State<ChatScreen1> {
       ),
     );
   }
+    String convertToAgo(DateTime input){
+  Duration diff = DateTime.now().difference(input);
+  
+  if(diff.inDays >= 1){
+    return '${diff.inDays} day ago';
+  } else if(diff.inHours >= 1){
+    return '${diff.inHours} hour ago';
+  } else if(diff.inMinutes >= 1){
+    return '${diff.inMinutes} minute ago';
+  } else if (diff.inSeconds >= 1){
+    return '${diff.inSeconds} second ago';
+  } else {
+    return 'just now';
+  }}
 
   // Widget _buildMessageItem(Message message) {
   //   final isMe = message.senderId == 'me';
@@ -151,6 +166,9 @@ class _ChatScreen1State extends State<ChatScreen1> {
     final backgroundColor = isMe ? Colors.green[300] : Colors.grey[200];
     final textColor = isMe ? Colors.white : Colors.black;
     final alignment = isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start;
+    int ts = message.timestamp;
+var dt = DateTime.fromMillisecondsSinceEpoch(ts);
+var date = DateFormat('MM/dd/yyyy, hh:mm a').format(dt);
     final radius = isMe
         ? BorderRadius.only(
             topLeft: Radius.circular(0),
@@ -182,7 +200,9 @@ class _ChatScreen1State extends State<ChatScreen1> {
         ), 
         SizedBox(height: 4),
         Text(
-          DateFormat('HH:mm dd/MM/yyyy').format(DateTime.fromMillisecondsSinceEpoch(message.timestamp)),
+          // DateFormat('HH:mm dd/MM/yyyy').format(DateTime.fromMillisecondsSinceEpoch(message.timestamp)),,
+          convertToAgo(dt)
+          ,
           style: TextStyle(fontSize: 12, color: textColor.withOpacity(0.6)),
         ),
       ],

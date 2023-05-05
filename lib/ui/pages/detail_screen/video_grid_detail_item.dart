@@ -3,27 +3,29 @@
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:social_video/services/video.dart';
-import 'package:social_video/ui/pages/feed_screen/comment_screen.dart';
+import 'package:social_video/ui/pages/detail_screen/comment_detail_screen.dart';
+// import 'package:social_video/ui/pages/feed_screen/comment_screen.dart';
 import 'package:social_video/ui/pages/login/auth_manager.dart';
 import 'package:social_video/ui/pages/login/login_number.dart';
 import 'package:social_video/ui/pages/profile_screen/profile_screen1.dart';
+import 'package:social_video/ui/pages/video_manager.dart';
 import 'package:video_player/video_player.dart';
 import '../../../models/video.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
-class VideoGridItemDetail extends StatefulWidget{
+class VideoGridDetailItem extends StatefulWidget{
     Video _video;
 
-     VideoGridItemDetail(this._video,{super.key});
+     VideoGridDetailItem(this._video,{super.key});
  
   @override
-  State<VideoGridItemDetail> createState() => _VideoGridItemDetailState();
+  State<VideoGridDetailItem> createState() => _VideoGridDetailItemState();
 }
 
-class _VideoGridItemDetailState extends State<VideoGridItemDetail> {
+class _VideoGridDetailItemState extends State<VideoGridDetailItem> {
     bool isPlay =  false;
-    bool isLike =false;
+    // bool isLike =false;
    late Future<void> _initializeVideoPlayerFuture;
     late VideoPlayerController _videoPlayerController;
     double valueLoaded = 1;
@@ -170,12 +172,13 @@ class _VideoGridItemDetailState extends State<VideoGridItemDetail> {
           child:Column(
               crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-                Text('${widget._video.user?.name}',style: TextStyle(color: Colors.white,fontSize: 20),),
+                Text('${widget._video.title}',overflow: TextOverflow.ellipsis,style: TextStyle(color: Colors.white,fontSize: 20)),
                 SizedBox(height: 10,),
                 Container(
                   width: MediaQuery.of(context).size.width-100,
                   
-                  child:  Text('${widget._video.title}',overflow: TextOverflow.ellipsis,style: TextStyle(color: Colors.white,fontSize: 14)),
+                child: Text('${widget._video.user?.name}',style: TextStyle(color: Colors.white,fontSize: 14)),
+                  
                 ),
 
                 SizedBox(height: 10,),
@@ -225,7 +228,7 @@ class _VideoGridItemDetailState extends State<VideoGridItemDetail> {
             ,
             Container(
               child: Column(children: [
-                 CommentScreen(videoId:widget._video.id!),
+                 CommentDetailScreen(videoId:widget._video.id!),
                 Text('${widget._video.comment}',style: TextStyle(color: Colors.white),)
               ]),
 
@@ -243,13 +246,23 @@ class _VideoGridItemDetailState extends State<VideoGridItemDetail> {
       );
     }
 Widget SendHeart(BuildContext ctx){
+              var token = ctx.read<AuthManager>().isAuth!=null ?  (ctx.read<AuthManager>().authToken?.token): null;
+
   return   GestureDetector(
             onTap: () {
               var isAuth =  ctx.read<AuthManager>().isAuth;
+
               print(isAuth);
+              print('heart3333333333333333333333333333333333333333333333333333333333333');
+              print('heart3333333333333333333333333333333333333333333333333333333333322');
+
+
               if(isAuth){
               setState(() {
-            isLike=!isLike;
+                  print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+
+            // isLike=!isLike;
+             ctx.read<VideosManager>().updateUserLike(widget._video.id!,token!);
                 
               });
               }else{
@@ -287,13 +300,12 @@ Widget SendHeart(BuildContext ctx){
                     },
                   );
               }
-              print('heart');
 
             },
           child:   Container(
               child: Column(children: [
                 
-            isLike ?  Icon(FontAwesomeIcons.solidHeart,color: Colors.white,) :Icon(FontAwesomeIcons.heart,color: Colors.white,),
+           ( (widget._video.like?.contains(token))! ) ?  Icon(FontAwesomeIcons.solidHeart,color: Colors.red,) :Icon(FontAwesomeIcons.heart,color: Colors.white,),
 
                 Text('${widget._video.like?.length}',style: TextStyle(color: Colors.white),)
               ]),

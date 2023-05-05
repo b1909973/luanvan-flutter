@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:social_video/ui/pages/feed_screen/video_grid_item.dart';
+import 'package:social_video/ui/pages/login/auth_manager.dart';
 import 'package:social_video/ui/pages/profile_screen/profile_screen1.dart';
 import 'package:social_video/ui/pages/video_manager.dart';
 import 'package:video_player/video_player.dart';
@@ -15,19 +16,68 @@ class VideoGrids extends StatefulWidget{
 
 class _VideoGridsState extends State<VideoGrids> {
    
-  
+      bool isHide =false;
      int _isWidgetFollowing = 0;
 
   Widget build(BuildContext context){
 
-   
+      print('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww');
        
          return   Consumer<VideosManager>(
               builder: (context, videosManager, child){
         
         return  Stack(
         children: [
+       _isWidgetFollowing==1 ?   PageView.builder(
+                onPageChanged: (value) async {
+                  print(value);
+                  if(value ==videosManager.CountFollowing-1){
+                    print('load them');
+                    print(videosManager.CountFollowing);
+                    print('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz');
+                    // print(videosManager.Count);
+                await    context.read<VideosManager>().fetchProductsFollowing(videosManager.CountFollowing+2,context.read<AuthManager>().authToken!.user.Following!);
+                  }
+                },
           
+        scrollDirection: Axis.vertical
+        
+        ,
+        itemCount: videosManager.CountFollowing
+        ,itemBuilder: (context, index){
+      
+               return    PageView(
+                onPageChanged: (value) {
+                  print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa22222222222222222222222222222222');
+                      print(value);
+                    print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa22222222222222222222222222222222');
+                      if(value==0)
+                       isHide=false;
+                      else
+                        isHide=true;
+
+                        setState(() {
+                          
+                        });
+                },
+                  children: [
+                     VideoGridItem(videosManager.itemFollwing[index]),
+
+                  ProfileScreenPeople(user: videosManager.itemFollwing[index].user,),
+
+                  ],
+               );
+                          
+                        
+                          
+                          
+                        
+
+
+        }
+      
+            
+            ) :
 
           
             PageView.builder(
@@ -35,7 +85,9 @@ class _VideoGridsState extends State<VideoGrids> {
                   print(value);
                   if(value ==videosManager.Count-1){
                     print('load them');
-                    context.read<VideosManager>().fetchProducts(videosManager.Count/2 +1);
+                    print('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz');
+                    print(videosManager.Count);
+                    context.read<VideosManager>().fetchProducts(videosManager.Count+2);
                   }
                 },
           
@@ -48,6 +100,19 @@ class _VideoGridsState extends State<VideoGrids> {
           print(videosManager.items[index].user);
           print('----------------------------------2222222222222222');
                return    PageView(
+                onPageChanged: (value) {
+                  print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa22222222222222222222222222222222');
+                      print(value);
+                    print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa22222222222222222222222222222222');
+                      if(value==0)
+                       isHide=false;
+                      else
+                        isHide=true;
+
+                        setState(() {
+                          
+                        });
+                },
                   children: [
                      VideoGridItem(videosManager.items[index]),
 
@@ -68,7 +133,7 @@ class _VideoGridsState extends State<VideoGrids> {
             ),
 
       
-          // _followingAndForYou(),
+       !isHide && context.read<AuthManager>().isAuth ?  _followingAndForYou() : Text(''),
     
     
 
@@ -106,7 +171,8 @@ class _VideoGridsState extends State<VideoGrids> {
             SizedBox(width: 15)
             ,
                      GestureDetector(
-              onTap: () {
+              onTap: () async {
+                await context.read<VideosManager>().fetchProductsFollowing(2,context.read<AuthManager>().authToken!.user.Following!);
                 setState(() {
                   _isWidgetFollowing=1;
                 });

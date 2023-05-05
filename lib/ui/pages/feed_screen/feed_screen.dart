@@ -34,7 +34,7 @@ class _FeedScreenState extends State<FeedScreen> {
     void initState(){
       super.initState();
       print('aaaaaaa');
-      _fetchProducts = context.read<VideosManager>().fetchProducts(1);
+      _fetchProducts = context.read<VideosManager>().fetchProducts(2);
     }
 
 

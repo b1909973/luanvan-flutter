@@ -76,21 +76,29 @@ class _NotificationScreenState extends State<NotificationScreen> {
             if (snapshot1.hasError) return Text('Error = ${snapshot1.error}');
           if (snapshot1.connectionState == ConnectionState.waiting) {
             return const Text("Loading");
-          }else
-          print('aaa ${ snapshot1.data!.docs[0]['name']}');
-         
+          }else{
+          // print('aaa ${ snapshot1.data!.docs[0]['name']}');
+              String name = snapshot1.data!.docs[0].data().toString().contains('name') ? snapshot1.data!.docs[0]['name'] : '';
+              String avatar =  snapshot1.data!.docs[0].data().toString().contains('photoURL') ? snapshot1.data!.docs[0]['photoURL'] : '';
+             print('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
+              print(name);
+              print(avatar);
+             print('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
+            //  var mili = (document['timestamp'] as Timestamp).millisecondsSinceEpoch;
+            //  print(mili);
+            // DateTime time =DateTime.fromMicrosecondsSinceEpoch((document['timestamp'])*1000);
              return ListTile(
               title: Row(
                 children: [
-                  Text('${ snapshot1.data!.docs[0]['name']} ',style: TextStyle(fontWeight: FontWeight.bold),),
+                  Text(name,style: TextStyle(fontWeight: FontWeight.bold),),
                   Text('is folowing you',style: TextStyle(fontStyle: FontStyle.italic),),
 
                   
                 ],
               ),
-              leading: CustomCircleAvatar(60, snapshot1.data!.docs[0]['photoURL']),
-              subtitle: Text('${(document['timestamp'] as Timestamp).toDate()}'),
-                );
+              leading: CustomCircleAvatar(60, avatar),
+              subtitle: Text('${convertToAgo((document['timestamp'] as Timestamp).toDate())}'),
+                );}
           },
 
 
@@ -111,6 +119,20 @@ class _NotificationScreenState extends State<NotificationScreen> {
       ),
     );
   }
+  String convertToAgo(DateTime input){
+  Duration diff = DateTime.now().difference(input);
+  
+  if(diff.inDays >= 1){
+    return '${diff.inDays} day ago';
+  } else if(diff.inHours >= 1){
+    return '${diff.inHours} hour ago';
+  } else if(diff.inMinutes >= 1){
+    return '${diff.inMinutes} minute ago';
+  } else if (diff.inSeconds >= 1){
+    return '${diff.inSeconds} second ago';
+  } else {
+    return 'just now';
+  }}
 Widget CustomCircleAvatar(double size,String? avatar){
        
         return   Container(

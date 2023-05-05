@@ -1,5 +1,6 @@
 
 
+import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/material.dart';
 import 'package:social_video/models/user.dart';
 import 'package:social_video/services/video.dart';
@@ -24,8 +25,25 @@ class _ProfileScreenPeopleState extends State<ProfileScreenPeople> {
       late Future<void> _fetchProducts;
 
 
+   List<String> tags=[];
+List<String> options = [
+  'cafe', 'food', 'walk',
+  'football', 'travel', 'music',
+  'movie', 'camping'
+];
+  //  var a = widget.users;
   void initState(){
+    print('llllllllllllllllllllllllllllllllllllllllllllllllllllll');
+    print('llllllllllllllllllllllllllllllllllllllllllllllllllllll');
+    print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+    print('llllllllllllllllllllllllllllllllllllllllllllllllllllll');
+    print('llllllllllllllllllllllllllllllllllllllllllllllllllllll');
+    print('llllllllllllllllllllllllllllllllllllllllllllllllllllll');
+    print('llllllllllllllllllllllllllllllllllllllllllllllllllllll');
 
+ tags = List<String>.from(widget.user.favorites!);
+ 
+options =  List<String>.from(widget.user.favorites!);
       super.initState();
       print('aaaaaaa');
       _fetchProducts = context.read<VideosManager>().fetchProductsOfUser(widget.user.id!);
@@ -70,14 +88,23 @@ class _ProfileScreenPeopleState extends State<ProfileScreenPeople> {
                   ,
                (context.read<AuthManager>().isAuth && (context.read<AuthManager>().authToken?.user.Following)!.contains(widget.user.id) )   ? UnFollow(): Follow(), 
                     SizedBox(height: 12,),
-                  
+                if(options.isNotEmpty)      ChipsChoice<String>.multiple(
+        wrapped: true,
+    value: tags.toList(),
+    onChanged: (val) => setState(() => tags = val),
+    choiceItems: C2Choice.listFrom<String, String>(
+      source: options,
+      value: (i, v) => v,
+      label: (i, v) => v,
+    ),
+  ),
                                 // Text('Follow me to teah u fishing'),
                                 // Text('Thx for your follow'),
-                  SizedBox(height: 24,)
+                  SizedBox(height: 24,),
 
+                 
                   
-                  ,
-                       
+                      
 
 
                     Container(constraints: BoxConstraints(minHeight: 360,maxHeight: 360),
@@ -214,9 +241,43 @@ Widget VideoList(){
                                 ),
                               );
                                 },
-                                child: VideoPlayer(_videoPlayerController),
+                                child: Stack(
+                                  children: [
+                                 VideoPlayer(_videoPlayerController),
+
+                                        Positioned(
+                                  top: 20,
+                                  left: 5,
+                                  child: 
+
+                                 Column(
+                                  
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  
+                                  children: [
+                                     Text('${videosManager.itemOfUser[index].title}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,fontSize: 9),),
+                                     Text('${convertToAgo(videosManager.itemOfUser[index].dateTime.toDate())}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,fontSize: 8),)
+
+                                  ],
+                                 )
+                                  ),
+             Positioned(
+                                  bottom: 20,
+                                  right: 5,
+                                  child: 
+                                 Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                     Text('${videosManager.itemOfUser[index].views!.length.toString()} lượt xem', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                                 
+
+                                  ],
+                                 )
+                                  ),
+
+                                  ],
                               ),  
-                               );
+                               ));
                              });
   }
   
@@ -227,6 +288,7 @@ Widget VideoList(){
   
   
   );
+
   
   
   
@@ -235,6 +297,21 @@ Widget VideoList(){
        
 
 }
+ String convertToAgo(DateTime input){
+  Duration diff = DateTime.now().difference(input);
+  
+  if(diff.inDays >= 1){
+    return '${diff.inDays} day ago';
+  } else if(diff.inHours >= 1){
+    return '${diff.inHours} hour ago';
+  } else if(diff.inMinutes >= 1){
+    return '${diff.inMinutes} minute ago';
+  } else if (diff.inSeconds >= 1){
+    return '${diff.inSeconds} second ago';
+  } else {
+    return 'just now';
+  }}
+
 
   Widget FollowAndLikeButton(String num,String label,{double mar=0}){
     return    Container(
@@ -263,8 +340,11 @@ Widget VideoList(){
                     SizedBox(height: 8,)
                       ,
 
-
+                    Row(children: [
                       Text(widget.user.name,style: TextStyle(fontSize: 18),),
+
+                        widget.user.tick?   Icon(Icons.check_circle,color: Colors.green,) : Text('')
+                    ],)
                     ],
                    ),
                    

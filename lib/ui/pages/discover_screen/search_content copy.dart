@@ -7,9 +7,14 @@ import 'package:social_video/ui/pages/discover_screen/search_manager.dart';
 import 'package:social_video/ui/pages/video_manager.dart';
 import 'package:video_player/video_player.dart';
 
-class SearchContent extends StatelessWidget{
+class SearchContent extends StatefulWidget{
    SearchContent({super.key});
 
+  @override
+  State<SearchContent> createState() => _SearchContentState();
+}
+
+class _SearchContentState extends State<SearchContent> {
     TextEditingController value = TextEditingController(text: '');
 
     @override
@@ -133,8 +138,9 @@ class SearchContent extends StatelessWidget{
            )
         ),),
                     TextButton(onPressed: () async  {
-                 await   context.read<SearchManager>().fetchProductsSearch(this.value.text);
+                 await   context.read<SearchManager>().fetchProductsSearch(this.value.text,1);
                       print(this.value.text);
+                    
           }, child: Text('Tìm kiếm' ,style: TextStyle(color: Colors.red,fontWeight: FontWeight.bold),)),
           
                 ],

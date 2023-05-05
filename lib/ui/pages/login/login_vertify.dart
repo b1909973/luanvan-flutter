@@ -8,6 +8,7 @@ import 'package:social_video/services/user.dart';
 import 'package:social_video/ui/pages/feed_screen/feed_screen.dart';
 import 'package:social_video/ui/pages/login/auth_manager.dart';
 import 'package:social_video/ui/pages/login/login_number.dart';
+import 'package:social_video/ui/pages/login/signup.dart';
 import '../../../models/user.dart';
 import 'package:provider/provider.dart';
 
@@ -26,7 +27,8 @@ Widget build(BuildContext context){
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Vertify'),
+        title: Text('Xác thực'),
+        backgroundColor: Colors.red,
       ),
       body: NumberContainer(),
     );
@@ -40,7 +42,7 @@ Widget NumberContainer(){
         child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
           children: [
-              Text('Please enter OTP to vetify', style: TextStyle(
+              Text('Nhận mã OTP vào đây', style: TextStyle(
                 fontSize: 20
               ),)
             ,
@@ -55,13 +57,7 @@ VerificationCode(
     cursorColor: Colors.blue, // If this is null it will default to the ambient
     // clearAll is NOT required, you can delete it
     // takes any widget, so you can implement your design
-    clearAll: Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(
-        'clear all',
-        style: TextStyle(fontSize: 14.0, decoration: TextDecoration.underline, color: Colors.blue[700]),
-      ),
-    ),
+   
     onCompleted: (String value) {
       print(value);
       setState(() {
@@ -98,7 +94,13 @@ VerificationCode(
 
          Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
         }else{
-
+            print('chua co tai khoan');
+                Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Signup(id:value.user!.uid)
+                                ),
+                              );
         }
       });
        
@@ -120,7 +122,17 @@ VerificationCode(
       }
   
     
-  }, child: Text('Vertify'))
+  }, child:Container(
+
+      padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+          border:Border.all(color: Colors.red)
+        ,
+          borderRadius: BorderRadius.all(Radius.circular(20))
+      )
+    ,
+    child: Text('Xác thực' ,style: TextStyle(color: Colors.red),),
+  ))
           ],
         ),
 

@@ -3,7 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:social_video/services/video.dart';
-import 'package:social_video/ui/pages/feed_screen/comment_screen.dart';
+import 'package:social_video/ui/pages/discover_screen/comment_search_screen.dart';
+import 'package:social_video/ui/pages/discover_screen/search_manager.dart';
+// import 'package:social_video/ui/pages/feed_screen/comment_screen.dart';
 import 'package:social_video/ui/pages/login/auth_manager.dart';
 import 'package:social_video/ui/pages/login/login_number.dart';
 import 'package:social_video/ui/pages/profile_screen/profile_screen1.dart';
@@ -13,16 +15,16 @@ import '../../../models/video.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
-class VideoGridItem extends StatefulWidget{
+class VideoSearchGridItem extends StatefulWidget{
     Video _video;
 
-     VideoGridItem(this._video,{super.key});
+     VideoSearchGridItem(this._video,{super.key});
  
   @override
-  State<VideoGridItem> createState() => _VideoGridItemState();
+  State<VideoSearchGridItem> createState() => _VideoSearchGridItemState();
 }
 
-class _VideoGridItemState extends State<VideoGridItem> {
+class _VideoSearchGridItemState extends State<VideoSearchGridItem> {
     bool isPlay =  false;
     // bool isLike =false;
    late Future<void> _initializeVideoPlayerFuture;
@@ -227,7 +229,7 @@ class _VideoGridItemState extends State<VideoGridItem> {
             ,
             Container(
               child: Column(children: [
-                 CommentScreen(videoId:widget._video.id!),
+                 CommentSearchScreen(videoId:widget._video.id!),
                 Text('${widget._video.comment}',style: TextStyle(color: Colors.white),)
               ]),
 
@@ -261,7 +263,7 @@ Widget SendHeart(BuildContext ctx){
                   print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
 
             // isLike=!isLike;
-             ctx.read<VideosManager>().updateLike(widget._video.id!,token!);
+             ctx.read<SearchManager>().updateLike(widget._video.id!,token!);
                 
               });
               }else{

@@ -9,9 +9,9 @@ class Users{
     final List<dynamic>? like ;
     final List<dynamic>?  Follower ;
     final List<dynamic>? Following;
-    final String? PhotoURL;
+     String? PhotoURL;
     final List<dynamic>? favorites;
-    const Users({this.id,required this.name,required this.email,this.PhotoURL ,required this.nickname,required  this.like,required this.Follower,required this.Following, this.tick =false,this.favorites});
+     Users({this.id,required this.name,required this.email,this.PhotoURL ,required this.nickname,required  this.like,required this.Follower,required this.Following, this.tick =false,this.favorites});
 
     
     Users coppyWith({String? id,String? phone,String? name, List<String>? like,String? nickname ,String? email ,List<String>? Follower,  List<String>? Following,bool? tick ,List<String>? favorites}){

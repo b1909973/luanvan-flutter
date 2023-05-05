@@ -16,6 +16,35 @@ class UsersService{
 
   UsersService() ;
 
+
+    Future<QuerySnapshot<Map<String, dynamic>>> findPeopleTheSameFavorites(Users user) async{
+          final productsUrl = Uri.parse('https://social-video-service2.onrender.com/user/${user.id}');
+          final response = await http.get(productsUrl);
+          // print(response);
+        final productsMap = json.decode(response.body) as List<dynamic>;
+  final FavoritesId=  List<String>.from(productsMap);
+
+// ///////////////////////////////////////////////////////
+          final productsUrl1 = Uri.parse('https://social-video-service2.onrender.com/user/friends/${user.id}');
+final response1 = await http.get(productsUrl1);
+final productsMap1 = json.decode(response1.body) as List<dynamic>;
+  final FriendsId=  List<String>.from(productsMap1);
+  
+
+    if(FavoritesId.isNotEmpty)
+      return await FirebaseFirestore.instance.collection('users').where('uid',whereIn: FavoritesId).get();
+    return await FirebaseFirestore.instance.collection('users').where('uid',isNotEqualTo: user.id).get();
+
+
+    //.then((value) =>
+    //  value.docs.where((element) => !(element.get('followers') as List<dynamic>).contains(user.id));
+    // );
+    
+
+  
+
+    }
+
 Future<void> follow(String? userid, String? id) async{
 List<dynamic> user=[];
   List<dynamic> me =[];
@@ -131,16 +160,17 @@ await FirebaseFirestore.instance.collection('users').where('uid',isEqualTo: id).
 
     }
 
-  Future<List<Users>> fetchAllUser(String search) async {
+  Future<List<Users>> fetchAllUser(String search,int pagination) async {
       List<Users> _item = [];
       try {
            CollectionReference users = FirebaseFirestore.instance.collection('users');
 
-  await users.where('name',isNull: false).get().then((QuerySnapshot querySnapshot) {
+  await users.where('name',isNull: false).limit(pagination).get().then((QuerySnapshot querySnapshot) {
     print('20----------------------------------------------------------');
       querySnapshot.docs.forEach((doc) {
   _item.add(
           Users(
+
           name:doc.data().toString().contains('name') ?doc['name'] : '',
          email:doc.data().toString().contains('email') ? doc.get('email') :  '', 
          nickname:doc.data().toString().contains('nickname') ? doc['nickname'] : '',
@@ -149,6 +179,9 @@ await FirebaseFirestore.instance.collection('users').where('uid',isEqualTo: id).
          Following:doc.data().toString().contains('following') ? doc.get('following') :   [],
          PhotoURL: doc.data().toString().contains('photoURL') ?doc['photoURL'] : '',
          id: doc['uid']  ,
+          favorites: doc.data().toString().contains('favorites') ? doc['favorites'] :   []
+
+         ,
           tick: doc['tick'] )
 
       );
@@ -178,6 +211,36 @@ await FirebaseFirestore.instance.collection('users').where('uid',isEqualTo: id).
 
     }
 
+
+
+    //  Future<List<Users>> fetchFriend(List<dynamic> followingId,String id) async {
+    //   bool isTrue= false;
+
+
+    //   List<Users> list_users =[];
+    //   try {
+    //        CollectionReference users = FirebaseFirestore.instance.collection('users');
+
+
+    // users.where('uid',whereIn: followingId)
+    
+
+
+
+
+    // return list_users;
+    
+    //   } catch (e) {
+    //     print('Errr0==================== ${e}');
+    //     return list_users;
+    //   }
+   
+
+
+    // }
+
+
+
      Future<List<Users>> fetchUsers(List<dynamic> followingId,String id) async {
       bool isTrue= false;
 
@@ -201,6 +264,8 @@ await FirebaseFirestore.instance.collection('users').where('uid',isEqualTo: id).
          Following:querySnapshot.docs[0].data().toString().contains('following') ? querySnapshot.docs[0].get('following') :   [],
          PhotoURL: querySnapshot.docs[0].data().toString().contains('photoURL') ?querySnapshot.docs[0]['photoURL'] : '',
          id: querySnapshot.docs[0]['uid']  ,
+          favorites: querySnapshot.docs[0].data().toString().contains('favorites') ? querySnapshot.docs[0].get('favorites') :   []
+,
           tick:  querySnapshot.docs[0]['tick'] ));
 
 
@@ -245,6 +310,8 @@ await FirebaseFirestore.instance.collection('users').where('uid',isEqualTo: id).
       print('===================================================================');
        
               list_users.add(Users(
+                      favorites: querySnapshot.docs[0].data().toString().contains('favorites') ? querySnapshot.docs[0].get('favorites') :   [],
+
           name:querySnapshot.docs[0].data().toString().contains('name') ?querySnapshot.docs[0]['name'] : '',
          email:querySnapshot.docs[0].data().toString().contains('email') ? querySnapshot.docs[0].get('email') :  '', 
          nickname:querySnapshot.docs[0].data().toString().contains('nickname') ? querySnapshot.docs[0]['nickname'] : '',
@@ -253,7 +320,9 @@ await FirebaseFirestore.instance.collection('users').where('uid',isEqualTo: id).
          Following:querySnapshot.docs[0].data().toString().contains('following') ? querySnapshot.docs[0].get('following') :   [],
          PhotoURL: querySnapshot.docs[0].data().toString().contains('photoURL') ?querySnapshot.docs[0]['photoURL'] : '',
          id: querySnapshot.docs[0]['uid']  ,
-          tick:  querySnapshot.docs[0]['tick'] ));
+          tick:  querySnapshot.docs[0]['tick'] )
+          
+          );
 
        
 
@@ -334,6 +403,52 @@ Future<bool> updateUser(String id,String name, String nickName, String email,Lis
     
          
     }
+
+Future<bool> createUser(String id,String name, String nickName, String email,List<String> tags) async{
+    try {
+      // FirebaseFirestore.instance.collection('users').add({
+      //      'name':name,
+      //       'nickname':nickName,
+      //       'email':email,
+      //       'favorites':tags,
+      //       'followers':[],
+      //       'following':[],
+      //       'noAccentName':name+nickName,
+      //       'timestamps':DateTime.now(),
+      //         'photoURL':''
+      // })
+      //     .then((value) {
+            
+      //     },).catchError((err)=> print('error'))
+      //     .catchError((error) => print("Failed to add video: $error"));
+      FirebaseFirestore.instance.collection('users').doc(id).set({
+                'name':name,
+            'nickname':nickName,
+            'email':email,
+            'favorites':tags,
+            'followers':[],
+            'following':[],
+            'noAccentName':name+nickName,
+            'timestamps':DateTime.now(),
+              'photoURL':'',
+              'uid':id,
+              'tick':false
+      })  .then((value) {
+        print('sucess');
+            
+          },).catchError((err)=> print('error'))
+          .catchError((error) => print("Failed to add video: $error"));
+      
+          return true;
+        
+    } catch (e) {
+        return false;
+    }
+    
+         
+    }
+
+
 
     
 

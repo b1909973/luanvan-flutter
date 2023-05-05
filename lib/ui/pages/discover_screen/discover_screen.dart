@@ -17,7 +17,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     void initState(){
       super.initState();
       print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-      _fetchProducts = context.read<SearchManager>().fetchProductsSearch('');
+      _fetchProducts = context.read<SearchManager>().fetchProductsSearch('',6);
 
     }
 

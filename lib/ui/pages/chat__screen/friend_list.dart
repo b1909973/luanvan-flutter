@@ -1,8 +1,11 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:social_video/models/message.dart';
+import 'package:social_video/models/user.dart';
+import 'package:social_video/services/user.dart';
 import 'package:social_video/ui/pages/chat__screen/chat_screen1.dart';
 import 'package:social_video/ui/pages/login/auth_manager.dart';
 import 'package:social_video/ui/widgets/showLogin.dart';
@@ -55,7 +58,17 @@ class _FriendListScreen1State extends State<FriendListScreen1> {
           ),
           
      ),
-      body: !context.read<AuthManager>().isAuth ? showLogin()  :  StreamBuilder(
+      body: !context.read<AuthManager>().isAuth ? showLogin()  : Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+            // Text('Có thể bạn thích?',style: TextStyle(fontStyle: FontStyle.italic))
+            // ,
+              // buildListFriends(context),
+              // ,
+              Divider()
+              ,
+          Expanded(child: 
+           StreamBuilder(
         stream: FirebaseFirestore.instance.collection('users').doc((context.read<AuthManager>().authToken?.token)).snapshots(),
         builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (!snapshot.hasData) {
@@ -63,10 +76,23 @@ class _FriendListScreen1State extends State<FriendListScreen1> {
               child: CircularProgressIndicator(),
             );
           }
-     final List<dynamic> friendIds = (snapshot.data!.data() as Map<String, dynamic>)['following'] as List<dynamic>;
-     final List<dynamic> followers = (snapshot.data!.data() as Map<String, dynamic>)['followers'] as List<dynamic>;
+     final List<dynamic> friendIds =  (snapshot.data!.data() as Map<String, dynamic>).containsKey('following')? (snapshot.data!.data() as Map<String, dynamic>)['following'] as List<dynamic> : [];
+     final List<dynamic> followers =  (snapshot.data!.data() as Map<String, dynamic>).containsKey('followers')? (snapshot.data!.data() as Map<String, dynamic>)['followers'] as List<dynamic> : [];
     // friendIds.removeWhere((element) => !followers.contains(element));
       final all = [...friendIds,...followers];
+       for (var i = 0; i < all.length; i++) {
+         for (var j = i+1; j < all.length; j++) {
+              if(all[i]==all[j]){
+                all.removeAt(j);
+                j--;
+              }
+         }
+       }
+    print('aaaaaaaaaaaaaaaaaaaaaassssssssssssssssssssssssssssssssssssssssssssssssssssssss');
+    print(all);
+    print('aaaaaaaaaaaaaaaaaaaaaassssssssssssssssssssssssssssssssssssssssssssssssssssssss');
+
+      
     //  print(' f ${friendIds}');
     //  print('a ${followers}');
      
@@ -88,8 +114,8 @@ class _FriendListScreen1State extends State<FriendListScreen1> {
               final friends = snapshot.data!.docs.map((DocumentSnapshot document) {
                 return Friend(
                   id: document.id,
-                  name: document['name'],
-                  avatarImageUrl: document['photoURL'],
+                  name: document.data().toString().contains('name') ? document['name'] : '',
+                  avatarImageUrl:document.data().toString().contains('photoURL') ? document['photoURL'] : '',
                 );
               }).toList();
             //  final friendList = snapshot.data ?? [];
@@ -179,6 +205,10 @@ class _FriendListScreen1State extends State<FriendListScreen1> {
 
         },
       ),
+          
+          )
+        ],
+      )
     );
   }
 
@@ -213,6 +243,87 @@ class _FriendListScreen1State extends State<FriendListScreen1> {
       
    
   }
+
+
+
+
+
+
+  
+
+  Widget buildListFriends(BuildContext context){
+  return  Container(
+                padding: EdgeInsets.only(top: 8),
+                decoration: const BoxDecoration(
+                  // color: Colors.amber
+                )
+                ,
+                constraints:const BoxConstraints.expand(
+                  height: 100,
+                  width: double.infinity
+                
+                ),
+                child: FutureBuilder(
+                  
+                  future:UsersService().findPeopleTheSameFavorites(context.read<AuthManager>().authToken!.user),
+
+                  builder: (context, snapshot) {
+                    if(snapshot.hasError){
+                      print('error');
+                      return Text('ERROR');
+                    }else if(snapshot.connectionState == ConnectionState.waiting)
+                      return CircularProgressIndicator();
+                    else{
+                     
+                             return   ListView.separated(
+              scrollDirection: Axis.horizontal,
+             itemCount: snapshot.data!.docs.length,
+             itemBuilder: (context, index) {
+              print('1111111111111111111111111111111111111111111111111111111111111111111');
+               print(snapshot.data!.docs);
+              print('1111111111111111111111111111111111111111111111111111111111111111111');
+             
+                      Users a =Users(
+                        id: snapshot.data!.docs[index]['uid'], 
+                      
+                      name: snapshot.data!.docs[index].data().toString().contains('name') ? snapshot.data!.docs[index]['name'] : '' ,
+                       email:snapshot.data!.docs[index].data().toString().contains('email') ? snapshot.data!.docs[index]['email'] : '',
+                        nickname:snapshot.data!.docs[index].data().toString().contains('nickname') ?   snapshot.data!.docs[index]['nickname'] : '',
+                         like:snapshot.data!.docs[index].data().toString().contains('likes') ? snapshot.data!.docs[index].get('likes') : [],
+                       Follower: snapshot.data!.docs[index].data().toString().contains('followers') ? snapshot.data!.docs[index]['followers'] : [],
+                        Following:snapshot.data!.docs[index].data().toString().contains('following') ? snapshot.data!.docs[index]['following'] : [],
+                        PhotoURL:snapshot.data!.docs[index].data().toString().contains('photoURL') ?  snapshot.data!.docs[index]['photoURL'] : '');
+               return
+               GestureDetector(
+                child: buildFriend(a),
+                onTap: (() => print(index)),
+               );
+             },
+             separatorBuilder: (context, index) {
+               return const SizedBox(width: 20,);
+             },
+          
+            );
+                    }
+             
+                  },)
+              );
+}
+
+Widget buildFriend(Users a){
+  return  Column(
+              children: [
+                CircleAvatar(
+                backgroundImage: NetworkImage(a.PhotoURL ?? 'https://picsum.photos/id/237/200/300'),
+
+                  radius: 36,
+                ),
+                SizedBox(height: 4,)
+                ,
+                Text(a.name!=null ? a.name : '' )
+              ],
+            );
+}
 }
 
 class Friend {

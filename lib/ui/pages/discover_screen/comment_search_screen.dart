@@ -2,23 +2,24 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:social_video/ui/pages/detail_screen/CommentDetailGrid.dart';
+import 'package:social_video/ui/pages/discover_screen/CommentSearchGrid.dart';
+import 'package:social_video/ui/pages/discover_screen/search_manager.dart';
 import 'package:social_video/ui/pages/feed_screen/CommentGrid.dart';
 import 'package:social_video/ui/pages/video_manager.dart';
 import '../../../models/comment.dart';
-class CommentDetailScreen extends StatefulWidget{
+class CommentSearchScreen extends StatefulWidget{
       final String videoId;
-    CommentDetailScreen({Key? key,required this.videoId});
+    CommentSearchScreen({Key? key,required this.videoId});
 
   @override
-  State<CommentDetailScreen> createState() => _CommentDetailScreenState();
+  State<CommentSearchScreen> createState() => _CommentSearchScreenState();
 }
 
-class _CommentDetailScreenState extends State<CommentDetailScreen> {
+class _CommentSearchScreenState extends State<CommentSearchScreen> {
   late Future<void> _fetchComment;
     void initState(){
       super.initState();
-      _fetchComment = context.read<VideosManager>().fetchComments(widget.videoId);
+      _fetchComment = context.read<SearchManager>().fetchComments(widget.videoId);
     }
   Widget build(BuildContext context){
     print(_fetchComment);
@@ -27,7 +28,7 @@ class _CommentDetailScreenState extends State<CommentDetailScreen> {
                   builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
                 
-                  return   CommentDetailGird(videoId: widget.videoId);
+                  return   CommentSearchGird(videoId: widget.videoId);
                   
                   }
                   if (snapshot.connectionState == ConnectionState.waiting) {

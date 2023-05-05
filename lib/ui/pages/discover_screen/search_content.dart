@@ -59,30 +59,38 @@ class _SearchContentState extends State<SearchContent> {
                           )
                           ,
   isVideo ? SizedBox(
-      height: MediaQuery.of(context).size.height,
+      height: MediaQuery.of(context).size.height-220,
       child:     Expanded(
               
               child:                
-           GridView.builder(
-                               
-                            itemCount:searchManager.Count,
-                            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                                          maxCrossAxisExtent: 200,
-                                          childAspectRatio: 3/4,
-                                          crossAxisSpacing: 2,
-                                          mainAxisSpacing: 2,
-
-
-                            ),
-              
+          ListView.builder(
+                           
+                            itemCount:searchManager.Count +1,
+                        
               // 'https://via.placeholder.com/150/92c952'
               // Image(image:  NetworkImage(getThumnail(snapshot.data![index].videoLink)),fit: BoxFit.cover,)
                              itemBuilder: (context, index) {
+                        
             Future<void> _initializeVideoPlayerFuture;
-                           var _videoPlayerController=  VideoPlayerController.network(
-                           searchManager.items[index].videoLink);
+                           var _videoPlayerController= searchManager.Count!=index ?  VideoPlayerController.network(
+                           searchManager.items[index].videoLink) : VideoPlayerController.network('');
         _initializeVideoPlayerFuture= _videoPlayerController.initialize();
-                               return Stack(
+
+                               return searchManager.Count==index  ? 
+                                 ElevatedButton(onPressed: () async {
+                                                  
+                 await   context.read<SearchManager>().fetchProductsSearch(this.value.text,searchManager.CountUser+6);
+
+
+                            },
+                                       child:  Padding(padding: EdgeInsets.symmetric(horizontal: 30,vertical: 10),child:Text('Xem thêm')),
+                                        style:  ElevatedButton.styleFrom(backgroundColor: Colors.red),)
+                                
+                                 : 
+                               
+                               SizedBox(
+                                  height: MediaQuery.of(context).size.height-260,
+                                child: Stack(
                                 children: [
                                 
                                    GestureDetector(
@@ -115,10 +123,25 @@ class _SearchContentState extends State<SearchContent> {
                                   left: 5,
                                   child: 
                                   Text('${searchManager.items[index].title}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),)
-                                  )
-                                  ,
+                                  ),
+                                     Positioned(
+                                  bottom: 20,
+                                  right: 5,
+                                  child: 
+                                 Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                     Text('${searchManager.items[index].views!.length.toString()} lượt xem', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                                 
+
+                                  ],
+                                 )
+                                  ),
+
+                                  
                                 ],
-                               );
+                               )     
+                               ) ;
                              })
 
 
@@ -132,11 +155,12 @@ class _SearchContentState extends State<SearchContent> {
             ),
      ) :
        SizedBox(
-      height: MediaQuery.of(context).size.height,
+      height: MediaQuery.of(context).size.height-260,
       child: Container(padding: EdgeInsets.symmetric(horizontal: 12),
       child: buildListSearchUser(searchManager)
       ),
-     )
+     ),
+     
    
 
               
@@ -162,8 +186,22 @@ class _SearchContentState extends State<SearchContent> {
 
        Widget buildListSearchUser( SearchManager searchManager){
         return  Expanded(child: ListView.separated(itemBuilder: (context, index) =>   GestureDetector(
-                child: buildUser(searchManager.itemsUser[index]),
+                child: index==searchManager.CountUser+1-1 ? 
+                 ElevatedButton(onPressed: () async {
+                                                  
+                 await   context.read<SearchManager>().fetchProductsSearch(this.value.text,searchManager.CountUser+6);
+
+
+                            },
+                                       child:  Padding(padding: EdgeInsets.symmetric(horizontal: 30,vertical: 10),child:Text('Xem thêm')),
+                                        style:  ElevatedButton.styleFrom(backgroundColor: Colors.red),)
+                
+                : buildUser(searchManager.itemsUser[index]),
                 onTap: (() =>{
+                      print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa---'),
+                  print(searchManager.itemsUser[index]),
+                      print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa---'),
+
                     Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -179,7 +217,7 @@ class _SearchContentState extends State<SearchContent> {
                 
                 ),
                )
-        , separatorBuilder: (context, index) => const SizedBox(height: 14,), itemCount: searchManager.CountUser));
+        , separatorBuilder: (context, index) => const SizedBox(height: 14,), itemCount: searchManager.CountUser+1));
      
     }
 
@@ -277,7 +315,7 @@ class _SearchContentState extends State<SearchContent> {
            )
         ),),
                     TextButton(onPressed: () async  {
-                 await   context.read<SearchManager>().fetchProductsSearch(this.value.text);
+                 await   context.read<SearchManager>().fetchProductsSearch(this.value.text,6);
                       print(this.value.text);
           }, child: Text('Tìm kiếm' ,style: TextStyle(color: Colors.red,fontWeight: FontWeight.bold),)),
           

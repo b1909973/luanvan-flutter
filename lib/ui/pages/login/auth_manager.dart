@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:social_video/models/auth.dart';
 import 'package:social_video/services/auth.dart';
 import 'package:social_video/services/user.dart';
@@ -20,6 +21,10 @@ class AuthManager with ChangeNotifier {
 
   AuthToken? get authToken {
     return _authToken;
+  }
+
+   void set authToken(AuthToken? auth) {
+      _authToken=auth;
   }
    Future<void> follow(String? id,String? uid) async{
       this._authToken!.user.Following!.add(uid);
@@ -57,7 +62,8 @@ class AuthManager with ChangeNotifier {
 
   Future<void> logout() async {
     _authToken = null;
- 
+  final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
     notifyListeners();
    
   }
